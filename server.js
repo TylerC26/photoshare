@@ -31,6 +31,7 @@ const upload = multer({
 app.use(express.static("public"));
 
 // Create the "uploads" folder if it doesn't exist (for local testing)
+// add changesssss
 if (!fs.existsSync("./uploads")) {
   fs.mkdirSync("./uploads");
 }
