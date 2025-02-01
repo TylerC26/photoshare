@@ -65,6 +65,11 @@ app.post("/upload", upload.single("photo"), async (req, res) => {
   }
 });
 
+// Define a sample route
+app.get('/', (req, res) => {
+  res.send('Hello, Heroku!');
+});
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
