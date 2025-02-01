@@ -70,16 +70,68 @@
       font-size: 14px;
       color: green;
     }
+
+    .message.error {
+      color: red;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Upload Your Party Photo</h1>
-    <form id="uploadForm" class="upload-box" action="/upload" method="POST" enctype="multipart/form-data">
+    <form id="uploadForm" class="upload-box">
       <input type="file" name="photo" id="photoInput" accept="image/*" required>
       <button type="submit" class="submit-btn">Upload</button>
     </form>
     <p id="message" class="message"></p>
   </div>
+
+  <script>
+    const uploadForm = document.getElementById("uploadForm");
+    const photoInput = document.getElementById("photoInput");
+    const messageElement = document.getElementById("message");
+
+    // Add an event listener to prevent default form submission
+    uploadForm.addEventListener("submit", async (event) => {
+      event.preventDefault(); // Prevent the form from redirecting
+
+      // Check if a file is selected
+      if (!photoInput.files[0]) {
+        messageElement.textContent = "Please select a file to upload.";
+        messageElement.classList.add("error");
+        return;
+      }
+
+      // Create a FormData object to send the file
+      const formData = new FormData();
+      formData.append("photo", photoInput.files[0]);
+
+      try {
+        // Send the file to the server using fetch
+        const response = await fetch("/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        // Parse the response from the server
+        const result = await response.text();
+
+        if (response.ok) {
+          // Show a success message
+          messageElement.textContent = result;
+          messageElement.classList.remove("error");
+        } else {
+          // Show an error message
+          messageElement.textContent = `Error: ${result}`;
+          messageElement.classList.add("error");
+        }
+      } catch (error) {
+        // Handle any network or server errors
+        console.error("Error uploading file:", error);
+        messageElement.textContent = "An error occurred while uploading the photo.";
+        messageElement.classList.add("error");
+      }
+    });
+  </script>
 </body>
 </html>

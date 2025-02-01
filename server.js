@@ -4,6 +4,8 @@ const path = require("path");
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const fs = require("fs");
 const app = express();
+const cors = require("cors");
+app.use(cors());
 
 // Environment variables for AWS credentials
 const BUCKET_NAME = "photosharecloud";
@@ -23,7 +25,7 @@ const storage = multer.memoryStorage(); // Use memory storage to process files i
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB file size limit
+    fileSize: 100 * 1024 * 1024, // 5MB file size limit
   },
 });
 
@@ -43,6 +45,7 @@ app.post("/upload", upload.single("photo"), async (req, res) => {
   }
 
   try {
+    console.log(req.file);
     const fileName = Date.now() + path.extname(req.file.originalname);
 
     // Upload file to S3
@@ -61,7 +64,12 @@ app.post("/upload", upload.single("photo"), async (req, res) => {
     res.send(`Photo uploaded successfully: ${fileUrl}`);
   } catch (error) {
     console.error("Error uploading file to S3:", error);
-    res.status(500).send("Error uploading file to S3");
+
+    // Send a more detailed error response
+    res.status(500).send({
+      message: "Error uploading file to S3",
+      error: error.message, // Include error details
+    });
   }
 });
 
@@ -71,7 +79,7 @@ app.get('/', (req, res) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
